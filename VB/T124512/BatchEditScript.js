@@ -16,6 +16,7 @@ function CitiesCombo_EndCallback(s, e) {
 function OnBatchEditStartEditing(s, e) {
     curentEditingIndex = e.visibleIndex;
     var currentCountry = grid.batchEditApi.GetCellValue(curentEditingIndex, "CountryId");
+    hf.Set("CurrentCountry", currentCountry);
     if (currentCountry != lastCountry && e.focusedColumn.fieldName == "CityId" && currentCountry != null) {
         lastCountry = currentCountry;
         RefreshData(currentCountry);
