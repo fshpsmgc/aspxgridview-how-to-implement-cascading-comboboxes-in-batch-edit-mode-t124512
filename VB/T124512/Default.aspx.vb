@@ -48,7 +48,7 @@ Partial Public Class _Default
         If countryValue > -1 Then
             query = entity.Cities.Where(Function(city) city.CityName.Contains(e.Filter) AndAlso city.Country.CountryId = countryValue).OrderBy(Function(city) city.CityId)
         Else
-            query = entity.Cities.Where(Function(city) city.CityName.Contains(e.Filter)).OrderBy(Function(city) city.CityId)
+            query = Enumerable.Empty(Of City).AsQueryable()
         End If
         query = query.Skip(skip).Take(take)
         editor.DataSource = query.ToList()

@@ -49,7 +49,8 @@ public partial class _Default : System.Web.UI.Page
         if (countryValue > -1)
             query = entity.Cities.Where(city => city.CityName.Contains(e.Filter) && city.Country.CountryId == countryValue).OrderBy(city => city.CityId);
         else
-            query = entity.Cities.Where(city => city.CityName.Contains(e.Filter)).OrderBy(city => city.CityId);
+            //query = entity.Cities.Where(city => city.CityName.Contains(e.Filter)).OrderBy(city => city.CityId);
+            query = Enumerable.Empty<City>().AsQueryable();
         query = query.Skip(skip).Take(take);
         editor.DataSource = query.ToList();
         editor.DataBind();
