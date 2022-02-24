@@ -137,6 +137,13 @@ protected void FillCityCombo(ASPxComboBox cmb, string country) {
         }
 ```
 
+## Documentation
+- [ASPxGridView](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxGridView)
+- [SelectedIndexChanged](https://docs.devexpress.com/AspNet/js-ASPxClientComboBox.SelectedIndexChanged)
+- [PerformCallback](https://docs.devexpress.com/AspNet/js-ASPxClientComboBox.PerformCallback(parameter)) 
+- [Callback](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxCallback.Callback)
+- [BatchEditStartEditing](https://docs.devexpress.com/AspNet/DevExpress.Web.GridViewClientSideEvents.BatchEditStartEditing)
+
 ## Files to Look At
 - [Default.aspx](./CS/CascadingComboBoxesBatch/Default.aspx) (VB: [Default.aspx](./VB//CascadingComboBoxesBatch//Default.aspx))
 - [Default.aspx.cs](./CS//CascadingComboBoxesBatch//Default.aspx.cs) (VB: [Default.aspx.vb](./VB//CascadingComboBoxesBatch//Default.aspx.vb))
