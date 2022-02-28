@@ -12,14 +12,14 @@ This example demonstrates how to set up cascading combo boxes in [ASPxGridView](
 
 ![Cascading Combo Boxes in Batch Edit Mode](demo.gif)
 
-The cascading combo boxes for the grid in the batch edit mode use the same technique as other cascading combo box implementations. This technique involves the following steps:
-- [Response to a selection change](#respond-to-a-selection-change) of the primary combo box editor (in its client [SelectedIndexChanged](https://docs.devexpress.com/AspNet/js-ASPxClientComboBox.SelectedIndexChanged) event).
-- A [callback request](#assign-a-callback-handler) for the secondary column's combo box (with the client-side [PerformCallback](https://docs.devexpress.com/AspNet/js-ASPxClientComboBox.PerformCallback(parameter)) method).
-- [Filtering the data source items](#filter-the-second-combo-box-values) on the server (in the server-side [Callback](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxCallback.Callback) event handler). 
+The cascading combo boxes for the grid in the batch edit mode use the same technique as other cascading combo box implementations. This technique has the following steps:
+- **Respond to a selection change** of the primary combo box editor (in its client [SelectedIndexChanged](https://docs.devexpress.com/AspNet/js-ASPxClientComboBox.SelectedIndexChanged) event).
+- **Send a callback** for the secondary column's combo box (with the client-side [PerformCallback](https://docs.devexpress.com/AspNet/js-ASPxClientComboBox.PerformCallback(parameter)) method).
+- **Filter data source items** on the server (in the server-side [Callback](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxCallback.Callback) event handler). 
 
-There are implementation details that are specific to the batch edit mode: 
-- The server-side Callback [event handler has to be assigned](#assign-a-callback-handler) in the server-side [CellEditorInitialize](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxGridView.CellEditorInitialize) event handler.  
-- Items in the editors that depend on other editor's value should be [updated manually](#manually-update-the-second-combo-box) with the [PerformCallback](https://docs.devexpress.com/AspNet/js-ASPxClientComboBox.PerformCallback(parameter)) method every time the user starts editing the columns' values.
+Implementation details that are specific to the batch edit mode: 
+- You should [assign](#assign-a-callback-handler) the server-side [Callback](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxCallback.Callback) event handler on the server (in the [CellEditorInitialize](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxGridView.CellEditorInitialize) event handler). 
+- Every time the user enters the edit mode (the client-side [BatchEditStartEditing](https://docs.devexpress.com/AspNet/js-ASPxClientGridView.BatchEditStartEditing) event), check if the secondary combo box has correct items and initiate the callback to [update them if necessary](#manually-update-the-secondary-combo-box).
 
 ## Setup the Grid and its Column Editors
 Create an [ASPxGridView](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxGridView), assign its data source, and set the grid's [editing mode](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxGridViewEditingSettings.Mode) to `Batch`. Add two columns of type [GridViewDataComboBoxColumn](https://docs.devexpress.com/AspNet/DevExpress.Web.GridViewDataComboBoxColumn) and set their data sources.
@@ -27,7 +27,6 @@ Create an [ASPxGridView](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxG
 ```xml
 <dx:ASPxGridView ID="grid" ClientInstanceName="grid" runat="server" 
     DataSourceID="ObjectDataSourceCustomers"
-    KeyFieldName="CustomerId" 
     ...
             
     <SettingsEditing Mode="Batch" />
@@ -53,21 +52,25 @@ Create an [ASPxGridView](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxG
     </Columns>
 </dx:ASPxGridView>
 
+<!--Grid data source-->
+<asp:ObjectDataSource ID="ObjectDataSourceCustomers" runat="server" ... />
+
+<!--Combo box editors data sources-->
 <asp:SqlDataSource ID="CountriesDataSource" runat="server" ... />
 <asp:SqlDataSource ID="CitiesDataSource" runat="server" ... />
 
-<asp:ObjectDataSource ID="ObjectDataSourceCustomers" runat="server" ... />
+
 ```
 
 ## On Client: Initiate the Update of the Secondary Combo Box Items
 
-On the client, initiate callbacks to the server to update the items in the secondary combo box. 
+Perform callbacks to the server in the client-side event handlers to update the items in the secondary combo box. 
 
 ### Manually Update the Secondary Combo Box
 
-In batch edit mode, the grid uses a single instance of a column editor for all cells in this column. This instance does not perform a round trip to the server on each selection change. Because of that, you should manually update the items in the editors that depend on other editor's value (the secondary column's combo box editor). 
+In the batch edit mode, the grid uses a single instance of a column editor for all cells in this column. This instance does not perform a round trip to the server on each selection change. Because of that, you should manually update the items in the editors that depend on other editor's value (the secondary column's combo box editor). 
 
-To update the items, handle the grid's client-side [BatchEditStartEditing](https://docs.devexpress.com/AspNet/DevExpress.Web.GridViewClientSideEvents.BatchEditStartEditing) event and call the secondary combo box's [PerformCallback](https://docs.devexpress.com/AspNet/js-ASPxClientComboBox.PerformCallback(parameter)) method with the selected country.
+To update the items, handle the grid's client-side [BatchEditStartEditing](https://docs.devexpress.com/AspNet/js-ASPxClientGridView.BatchEditStartEditing) event and call the secondary combo box's [PerformCallback](https://docs.devexpress.com/AspNet/js-ASPxClientComboBox.PerformCallback(parameter)) method with the selected country.
 
 
 
@@ -107,11 +110,9 @@ function onSelectedCountryChanged(s, e) {
 
 ## On Server: Setup and Handle a Callback
 
-On the server, create a handler that filters the items in the secondary combo box and assign as the secondary editor's [Callback](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxCallback.Callback) event handler
+Create a handler that filters the items in the secondary combo box and assign as the secondary editor's [Callback](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxCallback.Callback) event handler.
 
 ### Filter the Secondary Combo Box Values
-
-Handle the secondary combo box column's server-side [Callback](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxCallback.Callback) event that fires in response to a call to the client-side [PerformCallback](https://docs.devexpress.com/AspNet/js-ASPxClientComboBox.PerformCallback(parameter)) method. In the handler, use the event argument's [Parameter](https://docs.devexpress.com/AspNet/DevExpress.Web.CallbackEventArgsBase.Parameter) property to obtain the primary combo box column's selected value passed from the client side. Use this value to filter the secondary combo box column's data source.
 
 Handle the server-side [Callback](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxCallback.Callback) event for the secondary combo box column (this event fires in response to a client-side [PerformCallback](https://docs.devexpress.com/AspNet/js-ASPxClientComboBox.PerformCallback(parameter)) method call). In the event handler, use the [Parameter](https://docs.devexpress.com/AspNet/DevExpress.Web.CallbackEventArgsBase.Parameter) event property to obtain the primary column's value from the client side. Filter the secondary combobox's data source based on this value.
 
@@ -141,7 +142,7 @@ protected void FillCityCombo(ASPxComboBox cmb, string country) {
 
 ### Assign a Callback Handler
 
-The column's combo box editor instance is created at runtime. Because of that, you should use the grid's server-side [CellEditorInitialize](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxGridView.CellEditorInitialize) event handler to access the secondary column's editor instance and set its [Callback](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxCallback.Callback) event handler.
+The grid creates columns' combo box editors at runtime. Because of that, you should access the secondary column's editor instance and set its [Callback](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxCallback.Callback) event handler on the server side (in the [CellEditorInitialize](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxGridView.CellEditorInitialize) event handler).
 
 ```xml
 <dx:ASPxGridView ID="grid" ClientInstanceName="grid" runat="server" ...
@@ -165,7 +166,7 @@ protected void grid_CellEditorInitialize(object sender, ASPxGridViewEditorEventA
 - [SelectedIndexChanged](https://docs.devexpress.com/AspNet/js-ASPxClientComboBox.SelectedIndexChanged)
 - [PerformCallback](https://docs.devexpress.com/AspNet/js-ASPxClientComboBox.PerformCallback(parameter)) 
 - [Callback](https://docs.devexpress.com/AspNet/DevExpress.Web.ASPxCallback.Callback)
-- [BatchEditStartEditing](https://docs.devexpress.com/AspNet/DevExpress.Web.GridViewClientSideEvents.BatchEditStartEditing)
+- [BatchEditStartEditing](https://docs.devexpress.com/AspNet/js-ASPxClientGridView.BatchEditStartEditing)
 
 ## Files to Look At
 - [Default.aspx](./CS/CascadingComboBoxesBatch/Default.aspx) (VB: [Default.aspx](./VB//CascadingComboBoxesBatch//Default.aspx))

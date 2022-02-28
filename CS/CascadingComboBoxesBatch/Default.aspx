@@ -16,8 +16,8 @@
             currentRowIndex = e.visibleIndex;
             currentColumnIndex = e.focusedColumn.index;
             var currentCountry = s.batchEditApi.GetCellValue(currentRowIndex, "CountryId");
-            // If the country in the selected row isn't the same as country in the previously selected row
-            // Fill the City column combo box editor with appropriate values
+
+            // Check if the secondary combo box has correct items and initiate the callback to update them if necessary.
             if (currentCountry != lastEditedCountry && e.focusedColumn.fieldName == "CityId") {
                 lastEditedCountry = currentCountry;
                 e.cancel = true;
@@ -31,8 +31,6 @@
             grid.batchEditApi.SetCellValue(currentRowIndex, "CityId", null);
             cmbCity.PerformCallback(s.GetValue());
         }
-
-        // Restrict edit during the callback.
 
         function onCityEndCallback(s, e) {
             lp.Hide();
@@ -77,7 +75,7 @@
                     Width="150"/>
 
                 <dx:GridViewDataColumn FieldName="CustomerName" />
-                
+
                 <dx:GridViewDataComboBoxColumn FieldName="CountryId" Caption="Country">
                     <PropertiesComboBox TextField="CountryName" ValueField="CountryId" ValueType="System.Int32" EnableSynchronization="false" DataSecurityMode="Strict"
                         IncrementalFilteringMode="StartsWith" DataSourceID="CountriesDataSource">
@@ -93,7 +91,7 @@
                 </dx:GridViewDataComboBoxColumn>
             </Columns>
         </dx:ASPxGridView>
-
+        
         <asp:SqlDataSource ID="CountriesDataSource" runat="server" ConnectionString="<%$ ConnectionStrings:ConnectionString %>" SelectCommand="SELECT [CountryId], [CountryName] FROM [Countries]"/>
         <asp:SqlDataSource ID="CitiesDataSource" runat="server" ConnectionString="<%$ ConnectionStrings:ConnectionString %>" SelectCommand="SELECT [CityId], [CityName] FROM [Cities]"/>
 
